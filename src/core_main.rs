@@ -44,9 +44,83 @@ pub fn core_main() -> Option<Vec<String>> {
     let mut _is_flutter_invoke_new_connection = false;
     let mut no_server = false;
     let mut arg_exe = Default::default();
-    for arg in std::env::args() {
+    
+    // 预处理：检查是否有 URL Scheme 参数（rustdesk://...）
+    let raw_args: Vec<String> = std::env::args().collect();
+    let mut processed_args = Vec::new();
+    
+    for (idx, arg) in raw_args.iter().enumerate() {
+        if idx == 0 {
+            processed_args.push(arg.clone());
+            continue;
+        }
+        
+        // 检测 URL Scheme 格式: rustdesk://action/id?param1=value1&param2=value2
+        if arg.starts_with(&crate::get_uri_prefix()) {
+            log::info!("Received URL Scheme: {}", arg);
+            
+            // 解析 URL: rustdesk://connect/1074305050?password=xiehan12&relay=true
+            if let Some(url_part) = arg.strip_prefix(&crate::get_uri_prefix()) {
+                // 分离路径和查询参数
+                let parts: Vec<&str> = url_part.splitn(2, '?').collect();
+                let path = parts[0];
+                let query = if parts.len() > 1 { parts[1] } else { "" };
+                
+                // 解析路径: connect/1074305050 -> --connect 1074305050
+                let path_parts: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+                if path_parts.len() >= 1 {
+                    let action = path_parts[0]; // connect, file-transfer, port-forward 等
+                    processed_args.push(format!("--{}", action));
+                    
+                    // 添加 ID（如果有）
+                    if path_parts.len() >= 2 {
+                        processed_args.push(path_parts[1].to_owned());
+                    }
+                    
+                    // 解析查询参数: password=xxx&relay=true -> --password xxx --relay
+                    if !query.is_empty() {
+                        for param in query.split('&') {
+                            let kv: Vec<&str> = param.splitn(2, '=').collect();
+                            if kv.len() == 2 {
+                                let key = kv[0];
+                                let value = kv[1];
+                                
+                                // URL 解码（简单实现：只处理常见的编码字符）
+                                let decoded_value = value
+                                    .replace("%20", " ")
+                                    .replace("%21", "!")
+                                    .replace("%23", "#")
+                                    .replace("%24", "$")
+                                    .replace("%26", "&")
+                                    .replace("%40", "@");
+                                
+                                // 转换为命令行参数
+                                if key == "password" {
+                                    processed_args.push("--password".to_owned());
+                                    processed_args.push(decoded_value.to_string());
+                                } else if key == "relay" && value == "true" {
+                                    processed_args.push("--relay".to_owned());
+                                } else {
+                                    // 其他参数
+                                    processed_args.push(format!("--{}", key));
+                                    processed_args.push(decoded_value.to_string());
+                                }
+                            }
+                        }
+                    }
+                    
+                    log::info!("Parsed URL Scheme to args: {:?}", processed_args);
+                }
+            }
+        } else {
+            processed_args.push(arg.clone());
+        }
+    }
+    
+    // 使用处理后的参数
+    for (i, arg) in processed_args.iter().enumerate() {
         if i == 0 {
-            arg_exe = arg;
+            arg_exe = arg.clone();
         } else if i > 0 {
             #[cfg(feature = "flutter")]
             if [
