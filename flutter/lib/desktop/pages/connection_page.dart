@@ -78,7 +78,8 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
               .marginOnly(left: em),
         );
 
-    setupServerWidget() => Flexible(
+    // Removed: setupServerWidget() - "如果需要更快连接速度，你可以选择自建服务器" tip
+    /* setupServerWidget() => Flexible(
           child: Offstage(
             offstage: !(!_svcStopped.value &&
                 stateGlobal.svcStatus.value == SvcStatus.ready &&
@@ -107,7 +108,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
               ],
             ),
           ),
-        );
+        ); */
 
     basicWidget() => Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -133,7 +134,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
             if (!isIncomingOnly) startServiceWidget(),
             // ready && public
             // No need to show the guide if is custom client.
-            if (!isIncomingOnly) setupServerWidget(),
+            // if (!isIncomingOnly) setupServerWidget(), // Removed: setup_server_tip
           ],
         );
 
