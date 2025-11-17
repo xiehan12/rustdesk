@@ -1976,7 +1976,7 @@ async fn start_one_port_forward<T: InvokeUiSession>(
 ) {
     if let Err(err) = crate::port_forward::listen(
         handler.get_id(),
-        handler.password.clone(),
+        handler.password.read().unwrap().clone(),
         port,
         handler.clone(),
         receiver,

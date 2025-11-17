@@ -1314,8 +1314,9 @@ impl<T: InvokeUiSession> Remote<T> {
                     }
                 }
                 Some(message::Union::Hash(hash)) => {
+                    let password = self.handler.password.read().unwrap().clone();
                     self.handler
-                        .handle_hash(&self.handler.password.clone(), hash, peer)
+                        .handle_hash(&password, hash, peer)
                         .await;
                 }
                 Some(message::Union::LoginResponse(lr)) => match lr.union {
