@@ -16,6 +16,24 @@
 
 ### 方案 1：强制隐藏（已实现 - 推荐）
 
+#### 1.1 隐藏等待窗口 "Waiting for new connection ..."
+
+**修改文件：** `src/ui.rs`
+
+**修改内容：** 强制设置 `HIDE_CM = true`
+
+```rust
+// 强制隐藏连接管理窗口
+*cm::HIDE_CM.lock().unwrap() = true;
+```
+
+**效果：**
+- ✅ 隐藏被控端启动时的等待窗口
+- ✅ 窗口完全隐藏在后台
+- ✅ 系统托盘可能仍有图标（可选）
+
+#### 1.2 隐藏连接提示窗口（已连接时）
+
 **修改文件：** `src/server/connection.rs`
 
 **修改内容：** 注释掉所有 `try_start_cm()` 调用
@@ -323,12 +341,17 @@ $env:RUST_LOG = "info"
 
 ### 修改文件
 
-| 文件 | 修改内容 | 效果 |
-|------|----------|------|
-| `src/server/connection.rs` | 注释掉 7 处 `try_start_cm()` 调用 | ⭐⭐⭐⭐⭐ 完全隐藏 |
-| `libs/hbb_common/src/password_security.rs` | 修改默认 `approve_mode` 从 Both 到 Password | ⭐⭐⭐ 部分隐藏 |
+| 文件 | 修改内容 | 窗口类型 | 效果 |
+|------|----------|----------|------|
+| `src/ui.rs` | 强制设置 `HIDE_CM = true` | 等待窗口 | ⭐⭐⭐⭐⭐ 完全隐藏 |
+| `src/server/connection.rs` | 注释掉 7 处 `try_start_cm()` 调用 | 连接提示窗口 | ⭐⭐⭐⭐⭐ 完全隐藏 |
+| `libs/hbb_common/src/password_security.rs` | 修改默认 `approve_mode` 从 Both 到 Password | 连接提示窗口 | ⭐⭐⭐ 部分隐藏 |
 
 ### 具体修改位置
+
+**ui.rs 修改（新增）：**
+- 第 123 行：强制设置 `HIDE_CM = true`
+- 效果：隐藏 "Waiting for new connection ..." 窗口
 
 **connection.rs 修改：**
 - 第 2177 行：密码模式/点击模式检查
@@ -369,9 +392,12 @@ git push origin main
 
 ### 🔥 最强方案：强制隐藏（方案 1）
 
-通过注释掉所有 `try_start_cm()` 调用，您可以：
+通过 2 处关键修改，您可以：
 
-✅ **100% 彻底隐藏连接提示窗口**
+✅ **100% 彻底隐藏所有窗口**
+  - 隐藏等待窗口 "Waiting for new connection ..."（`ui.rs`）
+  - 隐藏连接提示窗口（`connection.rs` 注释 7 处调用）
+
 ✅ **任何情况下都不显示**
 ✅ **无需用户交互**
 ✅ **适合无人值守场景**
@@ -379,11 +405,11 @@ git push origin main
 
 ### 📊 完整方案对比
 
-| 方案 | 修改位置 | 效果 | 推荐度 |
-|------|----------|------|--------|
-| 方案 1 | `connection.rs` 注释 7 处调用 | ⭐⭐⭐⭐⭐ 完全隐藏 | 🔥 强烈推荐 |
-| 方案 2 | `password_security.rs` 修改默认值 | ⭐⭐⭐ 部分隐藏 | ⚠️ 不够彻底 |
-| 方案 3 | 配置文件设置 | ⭐⭐ 依赖配置 | 💡 可选辅助 |
+| 方案 | 修改位置 | 隐藏窗口 | 效果 | 推荐度 |
+|------|----------|----------|------|--------|
+| 方案 1 | `ui.rs` + `connection.rs` (2 处修改) | 等待窗口 + 连接窗口 | ⭐⭐⭐⭐⭐ 完全隐藏 | 🔥 强烈推荐 |
+| 方案 2 | `password_security.rs` 修改默认值 | 连接窗口（部分） | ⭐⭐⭐ 部分隐藏 | ⚠️ 不够彻底 |
+| 方案 3 | 配置文件设置 | 等待窗口（仅） | ⭐⭐ 依赖配置 | 💡 可选辅助 |
 
 ### 🚀 立即测试
 
@@ -408,8 +434,25 @@ copy "target\release\rustdesk.exe" "C:\Program Files (x86)\RustDesk\rustdesk.exe
 ```
 
 **预期效果：**
-- ✅ 被控端完全没有任何窗口弹出
-- ✅ 连接静默建立
-- ✅ 用户无感知
+- ✅ 被控端启动时**不显示等待窗口**
+- ✅ 远程连接时**不显示连接提示窗口**
+- ✅ 完全静默运行，用户无感知
+- ✅ 系统托盘可能有图标（可根据需要隐藏）
+
+### 📋 完整修改清单
+
+| # | 文件 | 行数 | 修改内容 | 窗口 |
+|---|------|------|----------|------|
+| 1 | `src/ui.rs` | 123 | `HIDE_CM = true` | 等待窗口 ✅ |
+| 2 | `src/server/connection.rs` | 2177 | 注释 `try_start_cm` | 连接窗口 ✅ |
+| 3 | `src/server/connection.rs` | 2191 | 注释 `try_start_cm` | 连接窗口 ✅ |
+| 4 | `src/server/connection.rs` | 2198 | 注释 `try_start_cm` | 连接窗口 ✅ |
+| 5 | `src/server/connection.rs` | 2216 | 注释 `try_start_cm` | 连接窗口 ✅ |
+| 6 | `src/server/connection.rs` | 2230 | 注释 `try_start_cm` | 连接窗口 ✅ |
+| 7 | `src/server/connection.rs` | 2249 | 注释 `try_start_cm` | 连接窗口 ✅ |
+| 8 | `src/server/connection.rs` | 2301 | 注释 `try_start_cm` | 连接窗口 ✅ |
+| 9 | `libs/hbb_common/src/password_security.rs` | 87 | `ApproveMode::Password` | 辅助 |
+
+**共 9 处修改，100% 隐藏所有窗口！** 🎉
 
 🚀 享受完全静默的远程连接体验！
