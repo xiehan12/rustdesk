@@ -66,6 +66,8 @@ jobs:
     name: ${{ matrix.job.target }}
     needs: [build-RustDeskTempTopMostWindow, generate-bridge]
     runs-on: ${{ matrix.job.os }}
+    # Disabled: 主要使用 Sciter 版本以节省系统资源，Flutter 版本资源占用较高
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -168,6 +170,7 @@ jobs:
           # Clean Flutter cache to ensure assets are fresh
           pushd flutter
           flutter clean
+          flutter pub get
           popd
           
           # Windows: build RustDesk
@@ -288,10 +291,8 @@ jobs:
 
   # The fallback for the flutter version, we use Sciter for 32bit Windows.
   build-for-windows-sciter:
-    name: ${{ matrix.job.target }} (${{ matrix.job.os }})
+    name: ${{ matrix.job.target }}
     runs-on: ${{ matrix.job.os }}
-    # Temporarily disable this action due to additional test is needed.
-    # if: false
     strategy:
       fail-fast: false
       matrix:
