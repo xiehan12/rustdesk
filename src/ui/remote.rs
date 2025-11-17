@@ -565,7 +565,7 @@ impl SciterSession {
     pub fn new(cmd: String, id: String, password: String, args: Vec<String>) -> Self {
         let force_relay = args.contains(&"--relay".to_string());
         let session: Session<SciterHandler> = Session {
-            password: password.clone(),
+            password: Arc::new(RwLock::new(password.clone())),
             args,
             server_keyboard_enabled: Arc::new(RwLock::new(true)),
             server_file_transfer_enabled: Arc::new(RwLock::new(true)),
@@ -842,7 +842,8 @@ impl SciterSession {
 
     fn transfer_file(&mut self) {
         let id = self.get_id();
-        let args = vec!["--file-transfer", &id, &self.password];
+        let password = self.password.read().unwrap().clone();
+        let args = vec!["--file-transfer", &id, &password];
         if let Err(err) = crate::run_me(args) {
             log::error!("Failed to spawn file transfer: {}", err);
         }
@@ -850,7 +851,8 @@ impl SciterSession {
 
     fn tunnel(&mut self) {
         let id = self.get_id();
-        let args = vec!["--port-forward", &id, &self.password];
+        let password = self.password.read().unwrap().clone();
+        let args = vec!["--port-forward", &id, &password];
         if let Err(err) = crate::run_me(args) {
             log::error!("Failed to spawn IP tunneling: {}", err);
         }

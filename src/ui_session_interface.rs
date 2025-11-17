@@ -49,7 +49,7 @@ const CHANGE_RESOLUTION_VALID_TIMEOUT_SECS: u64 = 15;
 
 #[derive(Clone, Default)]
 pub struct Session<T: InvokeUiSession> {
-    pub password: String,
+    pub password: Arc<RwLock<String>>,
     pub args: Vec<String>,
     pub lc: Arc<RwLock<LoginConfigHandler>>,
     pub sender: Arc<RwLock<Option<mpsc::UnboundedSender<Data>>>>,
@@ -1338,6 +1338,11 @@ impl<T: InvokeUiSession> Session<T> {
         password: String,
         remember: bool,
     ) {
+        // 在当前会话中保存密码，即使用户没有选择"记住密码"
+        // 这样点击"文件传输"按钮时可以使用已输入的密码
+        if !password.is_empty() {
+            *self.password.write().unwrap() = password.clone();
+        }
         self.send(Data::Login((os_username, os_password, password, remember)));
     }
 
