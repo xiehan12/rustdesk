@@ -1974,9 +1974,11 @@ async fn start_one_port_forward<T: InvokeUiSession>(
     key: &str,
     token: &str,
 ) {
+    // 先克隆密码到局部变量，避免 RwLockReadGuard 跨越 .await 点
+    let password = handler.password.read().unwrap().clone();
     if let Err(err) = crate::port_forward::listen(
         handler.get_id(),
-        handler.password.read().unwrap().clone(),
+        password,
         port,
         handler.clone(),
         receiver,
