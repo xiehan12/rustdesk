@@ -146,8 +146,29 @@ pub fn start(args: &mut [String]) {
             return;
         };
         let id = id.to_owned();
-        let pass = iter.next().unwrap_or(&"".to_owned()).clone();
-        let args: Vec<String> = iter.map(|x| x.clone()).collect();
+        
+        // 解析密码参数：支持 --password 参数和直接传递密码
+        let mut pass = String::new();
+        let mut remaining_args = Vec::new();
+        
+        while let Some(arg) = iter.next() {
+            if arg == "--password" {
+                // 找到 --password 参数，下一个参数是密码值
+                if let Some(pwd) = iter.next() {
+                    pass = pwd.clone();
+                } else {
+                    log::warn!("--password parameter found but no password value provided");
+                }
+            } else if pass.is_empty() && remaining_args.is_empty() && !arg.starts_with("--") {
+                // 兼容旧格式：第三个参数直接是密码（不以 -- 开头）
+                pass = arg.clone();
+            } else {
+                // 其他参数
+                remaining_args.push(arg.clone());
+            }
+        }
+        
+        let args = remaining_args;
         frame.set_title(&id);
         frame.register_behavior("native-remote", move || {
             let handler =
