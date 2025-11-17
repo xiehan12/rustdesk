@@ -44,7 +44,7 @@ $rustdeskDir = Split-Path $rustdeskExe
 $isSciter = (Test-Path "$rustdeskDir\sciter.dll") -or ($fileSize -lt 25)
 
 if ($isSciter) {
-    Write-Host "检测到 Sciter 版本" -ForegroundColor Yellow
+    Write-Host "检测到 Sciter 版本（已支持 --password 参数）" -ForegroundColor Green
     Write-Host ""
     
     if ($SetPermanentPassword) {
@@ -74,42 +74,15 @@ if ($isSciter) {
             exit 1
         }
     } else {
-        # 连接模式
-        Write-Host "Sciter 版本使用说明:" -ForegroundColor Yellow
-        Write-Host "• --password 参数在连接时不生效" -ForegroundColor Yellow
-        Write-Host "• 需要先设置永久密码，或手动输入" -ForegroundColor Yellow
+        # 连接模式 - 现在支持 --password 参数了！
+        Write-Host "正在连接到: $RemoteID（使用密码: $Password）..." -ForegroundColor Yellow
         Write-Host ""
         
-        Write-Host "选择连接方式:" -ForegroundColor Cyan
-        Write-Host "[1] 使用永久密码自动连接（需先设置）" -ForegroundColor Gray
-        Write-Host "[2] 手动输入密码连接" -ForegroundColor Gray
-        Write-Host "[3] 现在设置永久密码" -ForegroundColor Gray
-        Write-Host ""
-        Write-Host "请选择 (1/2/3): " -NoNewline -ForegroundColor Yellow
-        $choice = Read-Host
-        
-        switch ($choice) {
-            "1" {
-                Write-Host ""
-                Write-Host "正在连接到: $RemoteID（使用永久密码）..." -ForegroundColor Yellow
-                & $rustdeskExe --connect $RemoteID
-            }
-            "2" {
-                Write-Host ""
-                Write-Host "正在连接到: $RemoteID（请手动输入密码）..." -ForegroundColor Yellow
-                & $rustdeskExe --connect $RemoteID
-            }
-            "3" {
-                Write-Host ""
-                Write-Host "设置永久密码需要管理员权限" -ForegroundColor Yellow
-                Write-Host "请以管理员身份运行:" -ForegroundColor Yellow
-                Write-Host ".\Quick-Connect.ps1 -SetPermanentPassword -Password $Password" -ForegroundColor Cyan
-            }
-            default {
-                Write-Host ""
-                Write-Host "✗ 无效选择" -ForegroundColor Red
-                exit 1
-            }
+        if ($Password) {
+            & $rustdeskExe --connect $RemoteID --password $Password
+        } else {
+            Write-Host "未提供密码，将提示手动输入..." -ForegroundColor Gray
+            & $rustdeskExe --connect $RemoteID
         }
     }
 } else {
