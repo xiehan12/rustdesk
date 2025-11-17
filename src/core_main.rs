@@ -148,7 +148,6 @@ pub fn core_main() -> Option<Vec<String>> {
                 args.push(arg.clone());
             }
         }
-        i += 1;
     }
     #[cfg(any(target_os = "linux", target_os = "windows"))]
     if args.is_empty() {
