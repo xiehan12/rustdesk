@@ -9,23 +9,37 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 pub fn start_tray() {
-    if crate::ui_interface::get_builtin_option(hbb_common::config::keys::OPTION_HIDE_TRAY) == "Y" {
-        #[cfg(target_os = "macos")]
-        {
-            loop {
-                std::thread::sleep(std::time::Duration::from_secs(1));
-            }
-        }
-        #[cfg(not(target_os = "macos"))]
-        {
-            return;
+    // 强制禁用系统托盘图标
+    log::info!("Tray icon disabled by default");
+    #[cfg(target_os = "macos")]
+    {
+        loop {
+            std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
+    #[cfg(not(target_os = "macos"))]
+    {
+        return;
+    }
+    
+    // 原来的代码（已禁用）
+    // if crate::ui_interface::get_builtin_option(hbb_common::config::keys::OPTION_HIDE_TRAY) == "Y" {
+    //     #[cfg(target_os = "macos")]
+    //     {
+    //         loop {
+    //             std::thread::sleep(std::time::Duration::from_secs(1));
+    //         }
+    //     }
+    //     #[cfg(not(target_os = "macos"))]
+    //     {
+    //         return;
+    //     }
+    // }
 
-    #[cfg(target_os = "linux")]
-    crate::server::check_zombie();
+    // #[cfg(target_os = "linux")]
+    // crate::server::check_zombie();
 
-    allow_err!(make_tray());
+    // allow_err!(make_tray());
 }
 
 fn make_tray() -> hbb_common::ResultType<()> {
