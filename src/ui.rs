@@ -84,7 +84,8 @@ pub fn start(args: &mut [String]) {
     let mut frame = sciter::WindowBuilder::main_window().create();
     #[cfg(windows)]
     allow_err!(sciter::set_options(sciter::RuntimeOptions::UxTheming(true)));
-    frame.set_title(&crate::get_app_name());
+    // 自定义窗口标题（不影响安装路径和配置文件路径）
+    frame.set_title("CQNT远程助手");
     #[cfg(target_os = "macos")]
     crate::platform::delegate::make_menubar(frame.get_host(), args.is_empty());
     #[cfg(windows)]
