@@ -45,17 +45,20 @@ class ConnectStatus: Reactor.Component {
         } else if (connect_status == 0) {
             return translate('connecting_status');
         }
-        if (!handler.using_public_server()) return translate('Ready');
-        return <span>{translate("Ready")}, <span .link #setup-server>{translate("setup_server_tip")}</span></span>;
+        // Removed: setup_server_tip - "如果需要更快连接速度，你可以选择自建服务器"
+        // if (!handler.using_public_server()) return translate('Ready');
+        // return <span>{translate("Ready")}, <span .link #setup-server>{translate("setup_server_tip")}</span></span>;
+        return translate('Ready');
     }
 
     event click $(#start-service) () {
         handler.set_option("stop-service", "");
     }
 
-    event click $(#setup-server) () {
-        handler.open_url("https://rustdesk.com/blog/id-relay-set/");
-    }
+    // Removed: setup_server click handler
+    // event click $(#setup-server) () {
+    //     handler.open_url("https://rustdesk.com/blog/id-relay-set/");
+    // }
 }
 
 function createNewConnect(id, type) {
