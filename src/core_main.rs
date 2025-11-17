@@ -145,7 +145,7 @@ pub fn core_main() -> Option<Vec<String>> {
             } else if arg == "--no-server" {
                 no_server = true;
             } else {
-                args.push(arg);
+                args.push(arg.clone());
             }
         }
         i += 1;
