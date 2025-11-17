@@ -216,8 +216,9 @@ pub fn start(args: &mut [String]) {
         // 完全隐藏窗口（包括任务栏）
         #[cfg(windows)]
         {
+            use winapi::shared::windef::HWND;
             use winapi::um::winuser::{GetWindowLongW, SetWindowLongW, ShowWindow, GWL_EXSTYLE, WS_EX_TOOLWINDOW, SW_HIDE};
-            let hwnd = frame.get_hwnd() as isize;
+            let hwnd = frame.get_hwnd() as HWND;
             unsafe {
                 // 添加 WS_EX_TOOLWINDOW 样式，使其不在任务栏显示
                 let ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
