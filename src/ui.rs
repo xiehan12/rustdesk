@@ -119,11 +119,14 @@ pub fn start(args: &mut [String]) {
             Box::new(cm::SciterConnectionManager::new())
         });
         page = "cm.html";
-        *cm::HIDE_CM.lock().unwrap() = crate::ipc::get_config("hide_cm")
-            .ok()
-            .flatten()
-            .unwrap_or_default()
-            == "true";
+        // 强制隐藏连接管理窗口
+        *cm::HIDE_CM.lock().unwrap() = true;
+        // 原来的配置读取（已注释）
+        // *cm::HIDE_CM.lock().unwrap() = crate::ipc::get_config("hide_cm")
+        //     .ok()
+        //     .flatten()
+        //     .unwrap_or_default()
+        //     == "true";
     } else if (args[0] == "--connect"
         || args[0] == "--file-transfer"
         || args[0] == "--port-forward"
