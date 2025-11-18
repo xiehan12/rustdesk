@@ -500,15 +500,16 @@ pub fn core_main() -> Option<Vec<String>> {
             return None;
         } else if args[0] == "--set-id" {
             if args.len() == 2 {
-                if crate::platform::is_installed() && is_root() {
+                // 移除 is_installed() 限制，允许便携版也能设置 ID
+                if is_root() {
                     let old_id = crate::ipc::get_id();
                     let mut res = crate::ui_interface::change_id_shared(args[1].to_owned(), old_id);
                     if res.is_empty() {
-                        res = "Done!".to_owned();
+                        res = "Done! ID has been changed successfully.".to_owned();
                     }
                     println!("{}", res);
                 } else {
-                    println!("Installation and administrative privileges required!");
+                    println!("Administrative privileges required!");
                 }
             }
             return None;

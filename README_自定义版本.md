@@ -4,16 +4,17 @@
 
 ## 🎯 核心特性
 
-### ✅ 6 大定制功能
+### ✅ 7 大定制功能
 
 | # | 功能 | 说明 | 场景 |
 |---|------|------|------|
 | 1️⃣ | **完全静默运行** | 无窗口、无托盘图标、完全隐藏 | 无人值守运维 |
 | 2️⃣ | **命令行密码支持** | `--password` 参数自动连接 | 自动化脚本 |
 | 3️⃣ | **URL Scheme 支持** | 网页/浏览器一键拉起 | 远程支持系统 |
-| 4️⃣ | **静默安装自定义路径** | `--path` 指定安装目录 | 企业批量部署 |
+| 4️⃣ | **静默安装自定义路径** | `--path` 指定安装目录，`--nolink` 控制快捷方式 | 企业批量部署 |
 | 5️⃣ | **自定义服务器** | 私有化部署支持 | 内网环境 |
 | 6️⃣ | **便携版密码设置** | 便携版支持 `--password` 设置密码 | 快速部署 |
+| 7️⃣ | **ID 获取与设置** | `--get-id` 获取 ID，`--set-id` 设置 ID | 批量部署管理 |
 
 ---
 
@@ -57,7 +58,21 @@ rustdesk.exe --connect 1074305050 --password xiehan12
 Start-Process "rustdesk://connect/1074305050?password=xiehan12"
 ```
 
-### 4. 启动被控端（完全静默）
+### 4. 获取与设置 ID
+
+```powershell
+# 获取当前设备 ID（无需管理员权限）
+rustdesk.exe --get-id
+
+# 设置自定义 ID（需要管理员权限）
+rustdesk.exe --set-id 987654321
+
+# 批量部署时获取并记录 ID
+$DEVICE_ID = & rustdesk.exe --get-id
+Write-Host "设备 ID: $DEVICE_ID"
+```
+
+### 5. 启动被控端（完全静默）
 
 ```powershell
 # 服务方式启动（推荐）
@@ -162,6 +177,38 @@ rustdesk.exe --password <密码>
 
 # 批量部署脚本
 Start-Process rustdesk.exe -ArgumentList "--password", "YourPass" -Verb RunAs -Wait
+```
+
+### 7️⃣ ID 获取与设置
+
+**格式：**
+```powershell
+# 获取 ID
+rustdesk.exe --get-id
+
+# 设置 ID
+rustdesk.exe --set-id <ID>
+```
+
+**特点：**
+- ✅ 获取 ID 无需任何权限
+- ✅ 设置 ID 需要管理员权限
+- ✅ 便携版和已安装版均支持
+- ✅ 便于批量部署管理
+
+**使用示例：**
+```powershell
+# 获取当前 ID
+$ID = & rustdesk.exe --get-id
+Write-Host "当前设备 ID: $ID"
+
+# 设置自定义 ID（需要管理员）
+Start-Process rustdesk.exe -ArgumentList "--set-id", "123456789" -Verb RunAs -Wait
+
+# 批量部署记录 ID
+$DeviceID = & rustdesk.exe --get-id
+$LogEntry = "$(Get-Date) | $env:COMPUTERNAME | $DeviceID"
+Add-Content -Path "C:\Deploy\devices.txt" -Value $LogEntry
 ```
 
 ---
@@ -289,9 +336,9 @@ Remove-Item $installer -Force
 | 类别 | 数量 |
 |------|------|
 | **修改文件** | 6 个 |
-| **修改行数** | 18 处 |
+| **修改行数** | 20 处 |
 | **新增代码** | ~200 行 |
-| **核心功能** | 5 大模块 |
+| **核心功能** | 7 大模块 |
 
 ---
 
@@ -330,14 +377,15 @@ Remove-Item $installer -Force
 
 ## 🎉 总结
 
-本定制版本通过 **19 处精心优化**，实现了 **6 大核心功能**，专为以下场景设计：
+本定制版本通过 **20 处精心优化**，实现了 **7 大核心功能**，专为以下场景设计：
 
-- ✅ **企业批量部署** - 静默安装 + 自定义路径 + 便携版密码设置
+- ✅ **企业批量部署** - 静默安装 + 自定义路径 + 便携版密码设置 + ID 管理
 - ✅ **无人值守运维** - 完全静默运行
 - ✅ **自动化脚本** - 命令行密码支持
 - ✅ **远程支持系统** - URL Scheme 集成
 - ✅ **私有化部署** - 自定义服务器
 - ✅ **快速部署** - 便携版即设即用
+- ✅ **设备管理** - ID 获取与设置
 
 **一行命令，完全静默，开箱即用！** 🚀
 
