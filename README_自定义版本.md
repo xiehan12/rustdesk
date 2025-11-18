@@ -27,6 +27,12 @@ rustdesk.exe --silent-install
 
 # 自定义路径安装
 rustdesk.exe --silent-install --path="D:\RustDesk"
+
+# 不创建桌面快捷方式
+rustdesk.exe --silent-install --nolink
+
+# 自定义路径 + 不创建桌面快捷方式
+rustdesk.exe --silent-install --path="D:\RustDesk" --nolink
 ```
 
 ### 2. 命令行连接
@@ -107,17 +113,22 @@ rustdesk://connect/<ID>?password=<密码>&relay=true
 - ✅ HTML 链接集成
 - ✅ 客服系统集成
 
-### 4️⃣ 静默安装自定义路径
+### 4️⃣ 静默安装自定义路径与选项
 
 **格式：**
 ```powershell
-rustdesk.exe --silent-install --path="<安装路径>"
+rustdesk.exe --silent-install [--path="<路径>"] [--nolink]
 ```
+
+**参数说明：**
+- `--path="<路径>"` - 自定义安装目录
+- `--nolink` - 不创建桌面快捷方式
 
 **特点：**
 - ✅ 支持绝对路径
 - ✅ 支持环境变量
 - ✅ 支持空格路径
+- ✅ 灵活控制快捷方式
 - ✅ 企业批量部署友好
 
 ### 5️⃣ 自定义服务器

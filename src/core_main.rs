@@ -298,19 +298,32 @@ pub fn core_main() -> Option<Vec<String>> {
                     return None;
                 }
                 
-                // 解析安装路径参数
+                // 解析安装路径参数和 --nolink 参数
                 let mut install_path = String::new();
+                let mut no_desktop_link = false;
                 for arg in &args[1..] {
                     if arg.starts_with("--path=") {
                         install_path = arg.strip_prefix("--path=").unwrap_or("").to_string();
+                    } else if arg == "--nolink" {
+                        no_desktop_link = true;
                     }
                 }
                 
+                // 根据 --nolink 参数决定是否创建桌面快捷方式
                 #[cfg(not(windows))]
-                let options = "desktopicon startmenu";
+                let mut options = if no_desktop_link {
+                    "startmenu".to_string()
+                } else {
+                    "desktopicon startmenu".to_string()
+                };
                 #[cfg(windows)]
-                let options = "desktopicon startmenu printer";
-                let res = platform::install_me(options, install_path, true, args.len() > 1);
+                let mut options = if no_desktop_link {
+                    "startmenu printer".to_string()
+                } else {
+                    "desktopicon startmenu printer".to_string()
+                };
+                
+                let res = platform::install_me(&options, install_path, true, args.len() > 1);
                 let text = match res {
                     Ok(_) => translate("Installation Successful!".to_string()),
                     Err(err) => {
