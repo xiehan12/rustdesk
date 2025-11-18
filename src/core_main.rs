@@ -456,14 +456,15 @@ pub fn core_main() -> Option<Vec<String>> {
             return None;
         } else if args[0] == "--password" {
             if args.len() == 2 {
-                if crate::platform::is_installed() && is_root() {
+                // 移除 is_installed() 限制，允许便携版也能设置密码
+                if is_root() {
                     if let Err(err) = crate::ipc::set_permanent_password(args[1].to_owned()) {
                         println!("{err}");
                     } else {
-                        println!("Done!");
+                        println!("Done! Password has been set successfully.");
                     }
                 } else {
-                    println!("Installation and administrative privileges required!");
+                    println!("Administrative privileges required!");
                 }
             }
             return None;
