@@ -451,10 +451,45 @@ pub fn core_main() -> Option<Vec<String>> {
             return None;
         } else if args[0] == "--service" {
             log::info!("start --service");
+            
+            // 确保配置文件存在（自动生成ID和必要配置）
+            log::info!("Ensuring configuration exists...");
+            let id = Config::get_id();
+            if !id.is_empty() {
+                log::info!("Service starting with ID: {}", id);
+            } else {
+                log::warn!("Failed to get or generate ID");
+            }
+            
+            // 确保密钥对存在
+            let _ = Config::get_key_pair();
+            
+            // 确保盐值存在
+            if Config::get_salt().is_empty() {
+                Config::set_salt(&Config::get_auto_password(6));
+                log::info!("Generated salt for service");
+            }
+            
             crate::start_os_service();
             return None;
         } else if args[0] == "--server" {
             log::info!("start --server with user {}", crate::username());
+            
+            // 确保配置文件存在（自动生成ID和必要配置）
+            log::info!("Ensuring configuration exists...");
+            let id = Config::get_id();
+            if !id.is_empty() {
+                log::info!("Server starting with ID: {}", id);
+            } else {
+                log::warn!("Failed to get or generate ID");
+            }
+            
+            // 确保密钥对和盐值存在
+            let _ = Config::get_key_pair();
+            if Config::get_salt().is_empty() {
+                Config::set_salt(&Config::get_auto_password(6));
+            }
+            
             #[cfg(target_os = "linux")]
             {
                 hbb_common::allow_err!(crate::platform::check_autostart_config());
