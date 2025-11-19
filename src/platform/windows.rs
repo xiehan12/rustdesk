@@ -1524,7 +1524,7 @@ copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{path}\\\"
             Some(reg_value_desktop_shortcuts),
             Some(reg_value_printer)
         ),
-        sleep = if debug { "timeout 300" } else { "" },
+        sleep = if debug { "timeout 10" } else { "" },
         dels = if debug { "" } else { &dels },
         copy_exe = copy_exe_cmd(&src_exe, &exe, &path)?,
         import_config = get_import_config(&exe),
@@ -2778,7 +2778,7 @@ taskkill /F /IM {app_name}.exe{filter}
     ",
         app_name = app_name,
         copy_exe = copy_exe_cmd(&src_exe, &exe, &path)?,
-        sleep = if debug { "timeout 300" } else { "" },
+        sleep = if debug { "timeout 10" } else { "" },
     );
 
     run_cmds(cmds, debug, "update")?;
