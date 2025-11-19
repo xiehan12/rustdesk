@@ -1,4 +1,4 @@
-# Get-RustDeskID.ps1
+﻿# Get-RustDeskID.ps1
 # 获取当前设备的 RustDesk ID
 
 param(

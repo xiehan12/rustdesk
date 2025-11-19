@@ -1,4 +1,4 @@
-# RustDesk 快速连接脚本
+﻿# RustDesk 快速连接脚本
 # 适配 Sciter 版本的限制
 
 param(

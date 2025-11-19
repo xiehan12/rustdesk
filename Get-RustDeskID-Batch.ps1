@@ -1,4 +1,4 @@
-# Get-RustDeskID-Batch.ps1
+﻿# Get-RustDeskID-Batch.ps1
 # 批量获取多台计算机的 RustDesk ID
 
 param(

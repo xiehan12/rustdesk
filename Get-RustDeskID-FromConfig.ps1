@@ -1,4 +1,4 @@
-# Get-RustDeskID-FromConfig.ps1
+﻿# Get-RustDeskID-FromConfig.ps1
 # 从配置文件读取 RustDesk ID（不依赖 --get-id 命令）
 
 param(

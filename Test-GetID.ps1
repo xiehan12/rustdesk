@@ -1,4 +1,4 @@
-# Test-GetID.ps1
+﻿# Test-GetID.ps1
 # 测试 --get-id 功能
 
 Write-Host "=== 测试 RustDesk --get-id 功能 ===" -ForegroundColor Cyan
