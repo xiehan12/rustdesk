@@ -342,7 +342,7 @@ pub fn core_main() -> Option<Vec<String>> {
                         }
                         
                         // 标记配置已初始化
-                        Config::set_option("initialized_at", &get_time().to_string());
+                        Config::set_option("initialized_at".to_string(), get_time().to_string());
                         
                         log::info!("Configuration initialized successfully with ID: {}", id);
                         
