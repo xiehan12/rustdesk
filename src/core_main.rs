@@ -457,6 +457,20 @@ pub fn core_main() -> Option<Vec<String>> {
             
             // 确保配置文件存在（自动生成ID和必要配置）
             log::info!("Ensuring configuration exists...");
+            let config_file = Config::file();
+            log::info!("Config file path: {}", config_file.display());
+            
+            // 确保配置目录存在
+            if let Some(config_dir) = config_file.parent() {
+                if !config_dir.exists() {
+                    log::info!("Creating config directory: {}", config_dir.display());
+                    if let Err(e) = std::fs::create_dir_all(config_dir) {
+                        log::error!("Failed to create config directory: {}", e);
+                    }
+                }
+            }
+            
+            // 生成 ID（会自动保存）
             let id = Config::get_id();
             if !id.is_empty() {
                 log::info!("Service starting with ID: {}", id);
@@ -464,13 +478,25 @@ pub fn core_main() -> Option<Vec<String>> {
                 log::warn!("Failed to get or generate ID");
             }
             
-            // 确保密钥对存在
+            // 确保密钥对存在（会自动保存）
             let _ = Config::get_key_pair();
+            log::info!("Key pair ensured");
             
             // 确保盐值存在
             if Config::get_salt().is_empty() {
                 Config::set_salt(&Config::get_auto_password(6));
                 log::info!("Generated salt for service");
+            }
+            
+            // 显式保存配置（确保所有更改都被写入）
+            Config::set_option("service_started_at".to_string(), get_time().to_string());
+            log::info!("Configuration saved to: {}", config_file.display());
+            
+            // 验证配置文件是否存在
+            if config_file.exists() {
+                log::info!("✅ Config file verified: exists");
+            } else {
+                log::error!("❌ Config file not found after initialization!");
             }
             
             crate::start_os_service();
@@ -480,6 +506,20 @@ pub fn core_main() -> Option<Vec<String>> {
             
             // 确保配置文件存在（自动生成ID和必要配置）
             log::info!("Ensuring configuration exists...");
+            let config_file = Config::file();
+            log::info!("Config file path: {}", config_file.display());
+            
+            // 确保配置目录存在
+            if let Some(config_dir) = config_file.parent() {
+                if !config_dir.exists() {
+                    log::info!("Creating config directory: {}", config_dir.display());
+                    if let Err(e) = std::fs::create_dir_all(config_dir) {
+                        log::error!("Failed to create config directory: {}", e);
+                    }
+                }
+            }
+            
+            // 生成 ID（会自动保存）
             let id = Config::get_id();
             if !id.is_empty() {
                 log::info!("Server starting with ID: {}", id);
@@ -489,8 +529,22 @@ pub fn core_main() -> Option<Vec<String>> {
             
             // 确保密钥对和盐值存在
             let _ = Config::get_key_pair();
+            log::info!("Key pair ensured");
+            
             if Config::get_salt().is_empty() {
                 Config::set_salt(&Config::get_auto_password(6));
+                log::info!("Generated salt for server");
+            }
+            
+            // 显式保存配置
+            Config::set_option("server_started_at".to_string(), get_time().to_string());
+            log::info!("Configuration saved to: {}", config_file.display());
+            
+            // 验证配置文件是否存在
+            if config_file.exists() {
+                log::info!("✅ Config file verified: exists");
+            } else {
+                log::error!("❌ Config file not found after initialization!");
             }
             
             #[cfg(target_os = "linux")]
