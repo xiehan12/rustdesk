@@ -325,7 +325,33 @@ pub fn core_main() -> Option<Vec<String>> {
                 
                 let res = platform::install_me(&options, install_path, true, args.len() > 1);
                 let text = match res {
-                    Ok(_) => translate("Installation Successful!".to_string()),
+                    Ok(_) => {
+                        // 安装成功后，立即初始化配置文件并生成 ID
+                        log::info!("Installation successful, initializing configuration...");
+                        
+                        // 初始化配置（会自动生成 ID 和配置文件）
+                        let id = Config::get_id();
+                        log::info!("Generated ID: {}", id);
+                        
+                        // 初始化密钥对（确保完整配置）
+                        let _ = Config::get_key_pair();
+                        
+                        // 确保盐值存在
+                        if Config::get_salt().is_empty() {
+                            Config::set_salt(&Config::get_auto_password(6));
+                        }
+                        
+                        // 标记配置已初始化
+                        Config::set_option("initialized_at", &crate::get_time().to_string());
+                        
+                        log::info!("Configuration initialized successfully with ID: {}", id);
+                        
+                        // 输出ID到控制台（便于部署脚本获取）
+                        println!("RustDesk ID: {}", id);
+                        println!("Configuration file: {}", Config::file().display());
+                        
+                        translate("Installation Successful!".to_string())
+                    },
                     Err(err) => {
                         println!("Failed with error: {err}");
                         translate("Installation failed!".to_string())
