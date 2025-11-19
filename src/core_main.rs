@@ -6,7 +6,7 @@ use crate::platform::breakdown_callback;
 #[cfg(not(debug_assertions))]
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 use hbb_common::platform::register_breakdown_handler;
-use hbb_common::{config, log};
+use hbb_common::{config, config::Config, get_time, log};
 #[cfg(windows)]
 use tauri_winrt_notification::{Duration, Sound, Toast};
 
@@ -342,7 +342,7 @@ pub fn core_main() -> Option<Vec<String>> {
                         }
                         
                         // 标记配置已初始化
-                        Config::set_option("initialized_at", &crate::get_time().to_string());
+                        Config::set_option("initialized_at", &get_time().to_string());
                         
                         log::info!("Configuration initialized successfully with ID: {}", id);
                         
