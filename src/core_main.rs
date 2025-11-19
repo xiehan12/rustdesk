@@ -298,14 +298,17 @@ pub fn core_main() -> Option<Vec<String>> {
                     return None;
                 }
                 
-                // 解析安装路径参数和 --nolink 参数
+                // 解析安装路径参数、--nolink 参数和 debug 参数
                 let mut install_path = String::new();
                 let mut no_desktop_link = false;
+                let mut debug_mode = false;
                 for arg in &args[1..] {
                     if arg.starts_with("--path=") {
                         install_path = arg.strip_prefix("--path=").unwrap_or("").to_string();
                     } else if arg == "--nolink" {
                         no_desktop_link = true;
+                    } else if arg == "debug" {
+                        debug_mode = true;
                     }
                 }
                 
@@ -323,7 +326,7 @@ pub fn core_main() -> Option<Vec<String>> {
                     "desktopicon startmenu printer".to_string()
                 };
                 
-                let res = platform::install_me(&options, install_path, true, args.len() > 1);
+                let res = platform::install_me(&options, install_path, true, debug_mode);
                 let text = match res {
                     Ok(_) => {
                         // 安装成功后，立即初始化配置文件并生成 ID
