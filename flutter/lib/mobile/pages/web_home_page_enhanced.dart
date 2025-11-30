@@ -8,7 +8,7 @@ import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:get/get.dart';
 import 'connection_page.dart';
-import '../settings_page.dart';
+import '../../web/settings_page.dart';
 
 /// Web Client URL 参数自动连接支持
 /// 
