@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RustDesk Web Client 自动连接示例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-left: 4px solid #667eea;
+            padding-left: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .url-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 2px dashed #667eea;
+        }
+        
+        .url-preview h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .url-text {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #333;
+        }
+        
+        .examples {
+            background: #f0f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .example-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .example-item h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+        
+        .example-item code {
+            display: block;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85em;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #856404;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 RustDesk Web Client 自动连接</h1>
+        <p class="subtitle">通过 URL 参数实现自动填充 ID 和密码，并可选自动连接</p>
+        
+        <div class="section">
+            <h2>📝 配置连接参数</h2>
+            <div class="form-group">
+                <label for="remoteId">远程设备 ID *</label>
+                <input type="text" id="remoteId" placeholder="例如: 123456789" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">连接密码（可选）</label>
+                <input type="password" id="password" placeholder="输入连接密码">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="autoConnect">
+                <label for="autoConnect">自动连接（填充后立即连接）</label>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="forceRelay">
+                <label for="forceRelay">强制使用中继服务器</label>
+            </div>
+            
+            <button onclick="generateUrl()">🔗 生成连接 URL</button>
+            
+            <div class="url-preview" id="urlPreview" style="display: none;">
+                <h3>📋 生成的 URL：</h3>
+                <div class="url-text" id="generatedUrl"></div>
+                <button onclick="copyUrl()" style="margin-top: 10px; background: #28a745;">📋 复制到剪贴板</button>
+                <button onclick="openUrl()" style="margin-top: 10px; background: #17a2b8;">🚀 直接打开</button>
+            </div>
+        </div>
+        
+        <div class="examples">
+            <h3>📚 使用示例</h3>
+            
+            <div class="example-item">
+                <h4>1. 仅预填充 ID</h4>
+                <code>https://yourserver.com/#/?id=123456789</code>
+            </div>
+            
+            <div class="example-item">
+                <h4>2. 预填充 ID 和密码</h4>
+                <code>https://yourserver.com/#/?id=123456789&password=yourpassword</code>
+            </div>
+            
+            <div class="example-item">
+                <h4>3. 自动连接（预填充 + 自动连接）</h4>
+                <code>https://yourserver.com/#/?id=123456789&password=yourpassword&autoconnect=true</code>
+            </div>
+            
+            <div class="example-item">
+                <h4>4. 强制中继连接</h4>
+                <code>https://yourserver.com/#/?id=123456789&relay=true&autoconnect=true</code>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📖 参数说明</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #667eea;">参数名</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #667eea;">说明</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #667eea;">示例</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;"><code>id</code></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;">远程设备 ID（必需）</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;"><code>123456789</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;"><code>password</code></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;">连接密码（可选）</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;"><code>yourpassword</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;"><code>autoconnect</code></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;">是否自动连接</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e1e8ed;"><code>true</code> 或 <code>false</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;"><code>relay</code></td>
+                        <td style="padding: 12px;">是否强制中继</td>
+                        <td style="padding: 12px;"><code>true</code> 或 <code>false</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="note">
+            <strong>⚠️ 安全提示：</strong> 密码会以明文形式出现在 URL 中，建议仅在可信环境下使用，或使用临时密码。在生产环境中，建议不在 URL 中包含密码，而是让用户手动输入。
+        </div>
+    </div>
+    
+    <script>
+        function generateUrl() {
+            const id = document.getElementById('remoteId').value.trim();
+            if (!id) {
+                alert('请输入远程设备 ID！');
+                return;
+            }
+            
+            const password = document.getElementById('password').value;
+            const autoConnect = document.getElementById('autoConnect').checked;
+            const forceRelay = document.getElementById('forceRelay').checked;
+            
+            // 构建 URL
+            // 替换为您的实际 RustDesk Web Client 地址
+            let baseUrl = 'https://yourserver.com';
+            
+            // 如果是本地测试
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                baseUrl = window.location.origin;
+            }
+            
+            let params = [`id=${encodeURIComponent(id)}`];
+            
+            if (password) {
+                params.push(`password=${encodeURIComponent(password)}`);
+            }
+            
+            if (autoConnect) {
+                params.push('autoconnect=true');
+            }
+            
+            if (forceRelay) {
+                params.push('relay=true');
+            }
+            
+            const url = `${baseUrl}/#/?${params.join('&')}`;
+            
+            document.getElementById('generatedUrl').textContent = url;
+            document.getElementById('urlPreview').style.display = 'block';
+            
+            // 保存到全局变量供其他函数使用
+            window.generatedConnectionUrl = url;
+        }
+        
+        function copyUrl() {
+            const url = document.getElementById('generatedUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ URL 已复制到剪贴板！');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制');
+            });
+        }
+        
+        function openUrl() {
+            const url = window.generatedConnectionUrl;
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+        
+        // 按回车键生成 URL
+        document.getElementById('remoteId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateUrl();
+            }
+        });
+        
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateUrl();
+            }
+        });
+    </script>
+</body>
+</html>

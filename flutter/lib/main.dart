@@ -26,6 +26,7 @@ import 'package:window_manager/window_manager.dart';
 import 'common.dart';
 import 'consts.dart';
 import 'mobile/pages/home_page.dart';
+import 'mobile/pages/web_home_page_enhanced.dart';
 import 'mobile/pages/server_page.dart';
 import 'models/platform_model.dart';
 
@@ -508,7 +509,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           home: isDesktop
               ? const DesktopTabPage()
               : isWeb
-                  ? WebHomePage()
+                  ? WebHomePageEnhanced()
                   : HomePage(),
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
