@@ -1,18 +1,18 @@
 name: Build RustDesk Web Client
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'flutter/**'
-      - '.github/workflows/build-webclient.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'flutter/**'
-  workflow_dispatch:
+  workflow_dispatch:  # 仅手动触发
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'flutter/**'
+  #     - '.github/workflows/build-webclient.yml'
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'flutter/**'
 
 jobs:
   build-web:

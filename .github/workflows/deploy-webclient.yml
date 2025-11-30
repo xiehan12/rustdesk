@@ -1,13 +1,13 @@
 name: Deploy RustDesk Web Client to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'flutter/**'
-      - '.github/workflows/deploy-webclient.yml'
-  workflow_dispatch:
+  workflow_dispatch:  # 仅手动触发
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'flutter/**'
+  #     - '.github/workflows/deploy-webclient.yml'
 
 # 设置 GITHUB_TOKEN 的权限以允许部署到 GitHub Pages
 permissions:
