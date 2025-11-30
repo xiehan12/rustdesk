@@ -1,0 +1,61 @@
+name: Build RustDesk Web Client
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'flutter/**'
+      - '.github/workflows/build-webclient.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'flutter/**'
+  workflow_dispatch:
+
+jobs:
+  build-web:
+    name: Build Web Client
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          
+      - name: Get Flutter dependencies
+        working-directory: ./flutter
+        run: flutter pub get
+        
+      - name: Build Web Client
+        working-directory: ./flutter
+        run: |
+          flutter build web --release \
+            --web-renderer canvaskit \
+            --base-href "/" \
+            --no-tree-shake-icons
+          
+      - name: Create deployment package
+        run: |
+          cd flutter/build/web
+          tar -czf ../../rustdesk-webclient.tar.gz .
+          
+      - name: Upload Web Client artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustdesk-webclient
+          path: flutter/rustdesk-webclient.tar.gz
+          retention-days: 30
+          
+      - name: Upload Web files for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustdesk-webclient-files
+          path: flutter/build/web/
+          retention-days: 7
