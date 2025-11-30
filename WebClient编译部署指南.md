@@ -525,7 +525,7 @@ gzip_min_length 1000;
 **检查 Flutter 版本：**
 ```bash
 flutter --version
-# 推荐: 3.19.0+
+# 推荐: 3.24.0+ (需要 Dart SDK 3.5.0+)
 ```
 
 **清理缓存：**
@@ -586,7 +586,7 @@ flutter build web --release --base-href "/"
 
 ### 编译前
 
-- [ ] Flutter 已安装（3.19.0+）
+- [ ] Flutter 已安装（3.24.0+，Dart SDK 3.5.0+）
 - [ ] 依赖已获取（`flutter pub get`）
 - [ ] 代码已提交
 
