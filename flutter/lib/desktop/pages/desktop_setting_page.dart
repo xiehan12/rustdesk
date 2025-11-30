@@ -207,10 +207,10 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
           settingTabs
               .add(_TabInfo(tab, 'Printer', Icons.print_outlined, Icons.print));
           break;
-        // case SettingsTabKey.about: // Removed: 关于标签页
-        //   settingTabs
-        //       .add(_TabInfo(tab, 'About', Icons.info_outline, Icons.info));
-        //   break;
+        case SettingsTabKey.about:
+          settingTabs
+              .add(_TabInfo(tab, 'About', Icons.info_outline, Icons.info));
+          break;
       }
     }
     return settingTabs;
@@ -241,9 +241,9 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
         case SettingsTabKey.printer:
           children.add(const _Printer());
           break;
-        // case SettingsTabKey.about: // Removed: 关于标签页
-        //   children.add(const _About());
-        //   break;
+        case SettingsTabKey.about:
+          children.add(const _About());
+          break;
       }
     }
     return children;
